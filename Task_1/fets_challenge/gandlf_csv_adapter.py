@@ -61,17 +61,17 @@ def paths_dict_to_dataframe(paths_dict, train_val_headers, numeric_header_name_t
     # intitialize columns
     columns = {header: [] for header in train_val_headers}
     columns['TrainOrVal'] = [] 
-    columns['InstitutionName'] = []
+    columns['Partition_ID'] = []
     
     for inst_name, inst_paths_dict in paths_dict.items():
         for usage in ['train', 'val']:
             for key_to_fpath in inst_paths_dict[usage]:
-                columns['InstitutionName'].append(inst_name)
+                columns['Partition_ID'].append(inst_name)
                 columns['TrainOrVal'].append(usage)
                 for header in train_val_headers:
                     if header == 0:
                         # grabbing the the data subfolder name as the subject id
-                        columns[header].append(key_to_fpath['SubjectID'])
+                        columns[header].append(key_to_fpath['Subject_ID'])
                     else:
                         columns[header].append(key_to_fpath[numeric_header_name_to_key[header]])
     
@@ -86,12 +86,12 @@ def construct_fedsim_csv(pardir,
     # read in the csv defining the subdirs per institution
     split_subdirs = pd.read_csv(split_subdirs_path)
     
-    if not set(['InstitutionName', 'SubdirName']).issubset(set(split_subdirs.columns)):
-        raise ValueError("The provided csv at {} must at minimum contain the columns 'InstitutionName' and 'SubdirName', but the columns are: {}".format(split_subdirs_path, list(split_subdirs.columns)))
+    if not set(['Partition_ID', 'Subject_ID']).issubset(set(split_subdirs.columns)):
+        raise ValueError("The provided csv at {} must at minimum contain the columns 'Partition_ID' and 'Subject_ID', but the columns are: {}".format(split_subdirs_path, list(split_subdirs.columns)))
     
     # sanity check that all subdirs provided in the dataframe are unique
-    if not split_subdirs['SubdirName'].is_unique:
-        raise ValueError("Repeated references to the same data subdir were found in the 'SubdirName' column of {}".format(split_subdirs_path))
+    if not split_subdirs['Subject_ID'].is_unique:
+        raise ValueError("Repeated references to the same data subdir were found in the 'Subject_ID' column of {}".format(split_subdirs_path))
     
     train_val_specified = ('TrainOrVal' in split_subdirs.columns)
     if train_val_specified:
@@ -100,30 +100,30 @@ def construct_fedsim_csv(pardir,
         print("No 'TrainOrVal' column found in split_subdirs csv, so performing automated split using percent_train of {}".format(percent_train))
     
     
-    inst_names = list(split_subdirs['InstitutionName'].unique())
+    inst_names = list(split_subdirs['Partition_ID'].unique())
     
     paths_dict = {inst_name: {'train': [], 'val': []} for inst_name in inst_names}
     for inst_name in inst_names:
         
         if train_val_specified:
-            train_subdirs = list(split_subdirs[(split_subdirs['InstitutionName']==inst_name) & (split_subdirs['TrainOrVal']=='train')]['SubdirName'])
-            val_subdirs = list(split_subdirs[(split_subdirs['InstitutionName']==inst_name) & (split_subdirs['TrainOrVal']=='val')]['SubdirName'])
+            train_subdirs = list(split_subdirs[(split_subdirs['Partition_ID']==inst_name) & (split_subdirs['TrainOrVal']=='train')]['Subject_ID'])
+            val_subdirs = list(split_subdirs[(split_subdirs['Partition_ID']==inst_name) & (split_subdirs['TrainOrVal']=='val')]['Subject_ID'])
             if len(train_subdirs) == 0:
                 raise ValueError("Train/val split specified in {} for insitution {} indicates an empty training set.".format(split_subdirs_path, inst_name))
             if len(val_subdirs) == 0:
                 raise ValueError("Train/val split specified in {} for insitution {} indicates an empty val set.".format(split_subdirs_path, inst_name))
         else:
-            subdirs = list(split_subdirs[split_subdirs['InstitutionName']==inst_name]['SubdirName'])
+            subdirs = list(split_subdirs[split_subdirs['Partition_ID']==inst_name]['Subject_ID'])
             train_subdirs, val_subdirs = train_val_split(subdirs=subdirs, percent_train=percent_train)
         
         for subdir in train_subdirs:
             inner_dict = get_appropriate_file_paths_from_subject_dir(os.path.join(pardir, subdir), include_labels=True)
-            inner_dict['SubjectID'] = subdir
+            inner_dict['Subject_ID'] = subdir
             paths_dict[inst_name]['train'].append(inner_dict)
             
         for subdir in val_subdirs:
             inner_dict = get_appropriate_file_paths_from_subject_dir(os.path.join(pardir, subdir), include_labels=True)
-            inner_dict['SubjectID'] = subdir
+            inner_dict['Subject_ID'] = subdir
             paths_dict[inst_name]['val'].append(inner_dict)
         
     # now construct the dataframe and save it as a csv
@@ -131,4 +131,4 @@ def construct_fedsim_csv(pardir,
                                   train_val_headers=train_val_headers, 
                                   numeric_header_name_to_key=numeric_header_name_to_key)
     df.to_csv(federated_simulation_train_val_csv_path, index=False)
-    return list(sorted(df.InstitutionName.unique()))
+    return list(sorted(df.Partition_ID.unique()))
