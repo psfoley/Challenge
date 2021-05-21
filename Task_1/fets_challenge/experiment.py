@@ -146,7 +146,8 @@ def gen_collaborator_time_stats(collaborator_names, seed=0xFEEDFACE):
 
 def compute_times_per_collaborator(collaborator_names,
                                    training_collaborators,
-                                   hparams,
+                                   batches_per_round,
+                                   epochs_per_round,
                                    collaborator_data,
                                    collaborator_time_stats,
                                    round_num):
@@ -182,11 +183,11 @@ def compute_times_per_collaborator(collaborator_names,
                                                  scale=stats.training_std)
             training_time_per = max(1, training_time_per)
 
-            # training data size comes from hparams
-            if hparams['batches_per_round'] > 0:
-                data_size = hparams['batches_per_round']
+            # training data size depends on the hparams
+            if batches_per_round > 0:
+                data_size = batches_per_round
             else:
-                data_size *= hparams['epochs_per_round']
+                data_size *= epochs_per_round
             time += data_size * training_time_per
             
             # upload time
@@ -292,38 +293,58 @@ def run_challenge_experiment(aggregation_function,
         # save the collaborators chosen this round
         collaborators_chosen_each_round[round_num] = training_collaborators
 
-        # default hyper-parameters
-        hparams = {
-            'epochs_per_round'  : 1.0,
-            'batches_per_round' : -1, # disabled
-            'learning_rate'     : 1e-4,
-        }
-        # update from logic
-        hparams.update(**training_hyper_parameters_for_round(collaborator_names,
-                                                             aggregator.tensor_db._iterate(),
-                                                             round_num,
-                                                             collaborators_chosen_each_round,
-                                                             collaborator_times_per_round))
-        # We need to tell competitors if we get unexpected keys!
-        # cache each tensor in the aggregator tensor_db
-        for k in hparams:
-            if k not in ('epochs_per_round', 'learning_rate', 'batches_per_round'):
-                raise Exception('Specified {} as a hyperparameter, accepted keys are: "learning_rate" and "epochs_per_round"'.format(k))
+        # get the hyper-parameters from the competitor
+        hparams = training_hyper_parameters_for_round(collaborator_names,
+                                                      aggregator.tensor_db._iterate(),
+                                                      round_num,
+                                                      collaborators_chosen_each_round,
+                                                      collaborator_times_per_round)
 
+        learning_rate, epochs_per_round, batches_per_round = hparams
+
+        if (epochs_per_round is None) == (batches_per_round is None):
+            logger.error('Hyper-parameter function error: function must return "None" for either "epochs_per_round" or "batches_per_round" but not both.')
+            return
+        
+        hparam_message = "\n\tlearning rate: {}".format(learning_rate)
+
+        # None gets mapped to -1 in the tensor_db
+        if epochs_per_round is None:
+            epochs_per_round = -1
+            hparam_message += "\n\tbatches_per_round: {}".format(batches_per_round)
+        elif batches_per_round is None:
+            batches_per_round = -1
+            hparam_message += "\n\tepochs_per_round: {}".format(epochs_per_round)
+
+        logger.info("Hyper-parameters for round {}:{}".format(round_num, hparam_message))
+
+        # cache each tensor in the aggregator tensor_db
         hparam_dict = {}
-        for k, v in hparams.items():
-            tk = TensorKey(tensor_name=k,
-                           origin=aggregator.uuid,
-                           round_number=round_num,
-                           report=False,
-                           tags=('hparam', 'model'))
-            hparam_dict[tk] = np.array(v)
+        tk = TensorKey(tensor_name='learning_rate',
+                        origin=aggregator.uuid,
+                        round_number=round_num,
+                        report=False,
+                        tags=('hparam', 'model'))
+        hparam_dict[tk] = np.array(learning_rate)
+        tk = TensorKey(tensor_name='epochs_per_round',
+                        origin=aggregator.uuid,
+                        round_number=round_num,
+                        report=False,
+                        tags=('hparam', 'model'))
+        hparam_dict[tk] = np.array(epochs_per_round)
+        tk = TensorKey(tensor_name='batches_per_round',
+                        origin=aggregator.uuid,
+                        round_number=round_num,
+                        report=False,
+                        tags=('hparam', 'model'))
+        hparam_dict[tk] = np.array(batches_per_round)
         aggregator.tensor_db.cache_tensor(hparam_dict)
 
         # pre-compute the times for each collaborator
         times_per_collaborator = compute_times_per_collaborator(collaborator_names,
                                                                 training_collaborators,
-                                                                hparams,
+                                                                batches_per_round,
+                                                                epochs_per_round,
                                                                 collaborator_data_loaders,
                                                                 collaborator_time_stats,
                                                                 round_num)
