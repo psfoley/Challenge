@@ -4,7 +4,7 @@ Task 1 ("Federated Training") aims at effective weight aggregation methods for t
 ## Getting started
 1. Register for the FeTS 2021 Challenge [here](https://www.med.upenn.edu/cbica/fets/miccai2021/) and submit a data request
 2. ```git clone https://github.com/FETS-AI/Challenge.git```
-3. ```cd Challenge/part_1```
+3. ```cd Challenge/Task_1```
 4. create virtual environment (python 3.6-3.8)
 5. ```pip install --upgrade pip```
 6. ```pip install .```
