@@ -17,6 +17,7 @@ from openfl.protocols import utils
 import openfl.native as fx
 
 from .gandlf_csv_adapter import construct_fedsim_csv
+from .custom_aggregation_wrapper import CustomAggregationWrapper
 
 # These data are derived from the actual timing information in the real-world FeTS information
 # They reflect a subset of the institutions involved.
@@ -229,10 +230,12 @@ def run_challenge_experiment(aggregation_function,
                                               0.8,
                                               gandlf_csv_path)
 
+    aggregation_wrapper = CustomAggregationWrapper(aggregation_function)
+
     overrides = {
         'aggregator.settings.rounds_to_train': rounds_to_train,
         'aggregator.settings.db_store_rounds': db_store_rounds,
-        'tasks.train.aggregation_type': aggregation_function,
+        'tasks.train.aggregation_type': aggregation_wrapper,
         'task_runner.settings.device': device,
         'task_runner.settings.validation_functions': validation_functions,
         'data_loader.settings.federated_simulation_train_val_csv_path': os.path.join(work, 'gandlf_paths.csv'),
@@ -351,6 +354,9 @@ def run_challenge_experiment(aggregation_function,
         collaborator_times_per_round[round_num] = times_per_collaborator
 
         aggregator.assigner.set_training_collaborators(training_collaborators)
+
+        # update the state in the aggregation wrapper
+        aggregation_wrapper.set_state_data_for_round(collaborators_chosen_each_round, collaborator_times_per_round)
 
         # turn the times list into a list of tuples and sort it
         times_list = [(t, col) for col, t in times_per_collaborator.items()]
