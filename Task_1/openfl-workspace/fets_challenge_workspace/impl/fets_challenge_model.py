@@ -265,31 +265,14 @@ class FeTSChallengeModel(PyTorchTaskRunner):
         # hard coded for now
         #FIXME: Note dependency on this and loss_function_kwargs on total_valscore definition in validate method
         # I try to track this with self.validation_output_keys (below)
-        if self.which_validation == 'brats_dice':
-            self.validation_function = brats_dice
-            if self.validate_with_fine_grained_dice:
-                self.validation_output_keys = ['float_DICE_ET', 
-                                               'float_DICE_TC', 
-                                               'float_DICE_WT']
-            else:
-                self.validation_output_keys = ['float_DICE_AVG(ET,TC,WT)']
-        elif self.which_validation == 'fets_phase2_validation':
+        if self.which_validation == 'fets_phase2_validation':
             self.validation_function = fets_phase2_validation
-            self.validation_output_keys = ['float_DICE_ET', 
-                                           'float_DICE_TC', 
-                                           'float_DICE_WT',
-                                           'binary_DICE_ET', 
+            self.validation_output_keys = ['binary_DICE_ET', 
                                            'binary_DICE_TC', 
                                            'binary_DICE_WT', 
                                            'binary_Hausdorff95_ET', 
                                            'binary_Hausdorff95_TC', 
-                                           'binary_Hausdorff95_WT', 
-                                           'binary_Sensitivity_ET', 
-                                           'binary_Sensitivity_TC', 
-                                           'binary_Sensitivity_WT', 
-                                           'binary_Specificity_ET', 
-                                           'binary_Specificity_TC', 
-                                           'binary_Specificity_WT']
+                                           'binary_Hausdorff95_WT']
         else:
             raise ValueError('The validation function {} is not currently supported'.format(self.which_validation))
 
