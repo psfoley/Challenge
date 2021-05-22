@@ -130,5 +130,8 @@ def construct_fedsim_csv(pardir,
     df =  paths_dict_to_dataframe(paths_dict=paths_dict, 
                                   train_val_headers=train_val_headers, 
                                   numeric_header_name_to_key=numeric_header_name_to_key)
+    # rename Partition_ID to InstitutionName
+    df = df.rename(columns={'Partition_ID': 'InstitutionName'})
+
     df.to_csv(federated_simulation_train_val_csv_path, index=False)
-    return list(sorted(df.Partition_ID.unique()))
+    return list(sorted(df.InstitutionName.unique()))
