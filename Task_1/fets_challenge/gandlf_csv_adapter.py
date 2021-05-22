@@ -84,7 +84,7 @@ def construct_fedsim_csv(pardir,
                          federated_simulation_train_val_csv_path):
     
     # read in the csv defining the subdirs per institution
-    split_subdirs = pd.read_csv(split_subdirs_path)
+    split_subdirs = pd.read_csv(split_subdirs_path, dtype=str)
     
     if not set(['Partition_ID', 'Subject_ID']).issubset(set(split_subdirs.columns)):
         raise ValueError("The provided csv at {} must at minimum contain the columns 'Partition_ID' and 'Subject_ID', but the columns are: {}".format(split_subdirs_path, list(split_subdirs.columns)))
@@ -130,8 +130,6 @@ def construct_fedsim_csv(pardir,
     df =  paths_dict_to_dataframe(paths_dict=paths_dict, 
                                   train_val_headers=train_val_headers, 
                                   numeric_header_name_to_key=numeric_header_name_to_key)
-    # rename Partition_ID to InstitutionName
-    df = df.rename(columns={'Partition_ID': 'InstitutionName'})
-
+    
     df.to_csv(federated_simulation_train_val_csv_path, index=False)
-    return list(sorted(df.InstitutionName.unique()))
+    return list(sorted(df.Partition_ID.unique()))
