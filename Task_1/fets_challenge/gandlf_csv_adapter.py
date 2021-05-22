@@ -1,6 +1,8 @@
-"""
-Authored by: Brandon Edwards (Intel) on behalf of the FeTS initiative.
-"""
+# Provided by the FeTS Initiative (www.fets.ai) as part of the FeTS Challenge 2021
+
+# Contributing Authors (alphabetical):
+# Brandon Edwards (Intel)
+# Micah Sheller (Intel)
 
 import os
 
@@ -69,11 +71,11 @@ def paths_dict_to_dataframe(paths_dict, train_val_headers, numeric_header_name_t
                 for header in train_val_headers:
                     if header == 0:
                         # grabbing the the data subfolder name as the subject id
-                        columns[header].append(key_to_fpath['SubjectID'])
+                        columns[header].append(key_to_fpath['Subject_ID'])
                     else:
                         columns[header].append(key_to_fpath[numeric_header_name_to_key[header]])
     
-    return pd.DataFrame(columns)
+    return pd.DataFrame(columns, dtype=str)
     
 
 def construct_fedsim_csv(pardir, 
@@ -116,12 +118,12 @@ def construct_fedsim_csv(pardir,
         
         for subdir in train_subdirs:
             inner_dict = get_appropriate_file_paths_from_subject_dir(os.path.join(pardir, subdir), include_labels=True)
-            inner_dict['SubjectID'] = subdir
+            inner_dict['Subject_ID'] = subdir
             paths_dict[inst_name]['train'].append(inner_dict)
             
         for subdir in val_subdirs:
             inner_dict = get_appropriate_file_paths_from_subject_dir(os.path.join(pardir, subdir), include_labels=True)
-            inner_dict['SubjectID'] = subdir
+            inner_dict['Subject_ID'] = subdir
             paths_dict[inst_name]['val'].append(inner_dict)
         
     # now construct the dataframe and save it as a csv
