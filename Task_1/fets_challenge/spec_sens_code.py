@@ -11,7 +11,7 @@ def check_classes_enumerated_along_correct_axis(array, axis, num_classes):
 
 
 def check_is_binary_single(array):
-    unique_values = np.unique(tensor)
+    unique_values = np.unique(array)
     if not set(unique_values).issubset(set([1.0, 0.0])):
         raise ValueError('The provided array is not binary as unique values are: {}'.format(unique_values))
 
