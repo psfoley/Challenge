@@ -5,7 +5,12 @@ Task 1 ("Federated Training") aims at effective weight aggregation methods for t
 1. Register for the FeTS 2021 Challenge [here](https://www.med.upenn.edu/cbica/fets/miccai2021/) and submit a data request
 2. ```git clone https://github.com/FETS-AI/Challenge.git```
 3. ```cd Challenge/Task_1```
-4. create virtual environment (python 3.6-3.8): 
+4. create virtual environment (python 3.6-3.8): we recommend using [Anaconda](https://www.anaconda.com/products/individual) as a package manager, and a new environment can be created and activated using the following commands: 
+```bash
+## create venv in specific path
+conda create -p ./venv python=3.7 -y
+conda activate ./venv
+```
 5. ```pip install --upgrade pip```
 6. ```pip install .```
 7. ```jupyter notebook```
