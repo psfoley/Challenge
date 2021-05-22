@@ -75,7 +75,7 @@ def paths_dict_to_dataframe(paths_dict, train_val_headers, numeric_header_name_t
                     else:
                         columns[header].append(key_to_fpath[numeric_header_name_to_key[header]])
     
-    return pd.DataFrame(columns)
+    return pd.DataFrame(columns, dtype=str)
     
 
 def construct_fedsim_csv(pardir, 
