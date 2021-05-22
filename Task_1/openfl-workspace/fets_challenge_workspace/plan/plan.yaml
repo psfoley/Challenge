@@ -48,7 +48,7 @@ data_loader:
         'axis': [1, 2, 3]
         'probability': 0.5
       'flip':
-        'axes_to_flip': [0, 1, 2]
+        'axis': [0, 1, 2]
         'probability': 1.0
     data_preprocessing:
       'crop_external_zero_planes': null
@@ -66,6 +66,8 @@ task_runner:
     validate_with_fine_grained_dice: True
     sigmoid_input_multiplier: 20.0
     validation_function: 'fets_phase2_validation'
+    validation_function_kwargs: 
+      challenge_reduced_output: True
 
 tasks:
   defaults: plan/defaults/tasks_torch.yaml
