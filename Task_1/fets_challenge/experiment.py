@@ -11,13 +11,15 @@ from logging import getLogger
 from pathlib import Path
 
 import numpy as np
-
 from openfl.utilities import split_tensor_dict_for_holdouts, TensorKey
 from openfl.protocols import utils
 import openfl.native as fx
 
 from .gandlf_csv_adapter import construct_fedsim_csv
 from .custom_aggregation_wrapper import CustomAggregationWrapper
+
+# one week
+MAX_SIMULATION_TIME = 7 * 24 * 60 * 60 
 
 # These data are derived from the actual timing information in the real-world FeTS information
 # They reflect a subset of the institutions involved.
@@ -201,6 +203,11 @@ def compute_times_per_collaborator(collaborator_names,
     return times
 
 
+def get_metric(metric, fl_round, tensor_db):
+    metric_name = 'performance_evaluation_metric_' + metric
+    target_tags = ('metric', 'validate_agg')
+    return float(tensor_db.tensor_db.query("tensor_name == @metric_name and round == @fl_round and tags == @target_tags").nparray)
+
 def run_challenge_experiment(aggregation_function,
                              choose_training_collaborators,
                              training_hyper_parameters_for_round,
@@ -284,6 +291,8 @@ def run_challenge_experiment(aggregation_function,
     logger.info('Starting experiment')
 
     total_simulated_time = 0
+    best_dice = -1.0
+    best_dice_over_time_auc = 0
 
     for round_num in range(rounds_to_train):
         # pick collaborators to train for the round
@@ -375,6 +384,42 @@ def run_challenge_experiment(aggregation_function,
             
             logger.info("Collaborator {} took simulated time: {} minutes".format(col, round(t / 60, 2)))
 
-        # the round time cost is the max of the times_list
-        total_simulated_time += max([t for t, _ in times_list])
-        logger.info("Simulation Time: {} minutes".format(round(total_simulated_time / 60, 2)))
+        # the round time is the max of the times_list
+        round_time = max([t for t, _ in times_list])
+        total_simulated_time += round_time
+
+        # get the dice scores for the round
+        binary_dice_wt = get_metric('binary_DICE_WT', round_num, aggregator.tensor_db)
+        binary_dice_et = get_metric('binary_DICE_ET', round_num, aggregator.tensor_db)
+        binary_dice_tc = get_metric('binary_DICE_TC', round_num, aggregator.tensor_db)
+        hausdorff95_wt = get_metric('binary_Hausdorff95_WT', round_num, aggregator.tensor_db)
+        hausdorff95_et = get_metric('binary_Hausdorff95_ET', round_num, aggregator.tensor_db)
+        hausdorff95_tc = get_metric('binary_Hausdorff95_TC', round_num, aggregator.tensor_db)
+
+        # compute the mean dice value
+        round_dice = np.mean([binary_dice_wt, binary_dice_et, binary_dice_tc])
+
+        # update best score
+        if best_dice < round_dice:
+            best_dice = round_dice
+        
+        # update the auc score
+        best_dice_over_time_auc += best_dice * round_time
+
+        # project the auc score as remaining time * best dice
+        projected_auc = (MAX_SIMULATION_TIME - total_simulated_time) * best_dice + best_dice_over_time_auc
+        projected_auc /= MAX_SIMULATION_TIME
+
+        # End of round summary
+        summary = '"**** END OF ROUND {} SUMMARY *****"'.format(round_num)
+        summary += "\n\tSimulation Time: {} minutes".format(round(total_simulated_time / 60, 2))
+        summary += "\n\tProjected Convergence Score: {}".format(projected_auc)
+        summary += "\n\tBinary DICE WT: {}".format(binary_dice_wt)
+        summary += "\n\tBinary DICE ET: {}".format(binary_dice_et)
+        summary += "\n\tBinary DICE TC: {}".format(binary_dice_tc)
+        summary += "\n\tHausdorff95 WT: {}".format(hausdorff95_wt)
+        summary += "\n\tHausdorff95 ET: {}".format(hausdorff95_et)
+        summary += "\n\tHausdorff95 TC: {}".format(hausdorff95_tc)
+
+        logger.info(summary)
+        
