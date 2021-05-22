@@ -676,7 +676,7 @@ class FeTSChallengeModel(PyTorchTaskRunner):
 
         # silly adaptation from brainmage logic to fets challenge logic
         for key, scores_list in valscores.items():
-            val_dict['challenge_metric_' + key] = np.mean(scores_list)
+            val_dict['performance_evaluation_metric_' + key] = np.mean(scores_list)
 
         origin = col_name
         suffix = 'validate'
