@@ -16,7 +16,7 @@ conda activate ./venv
 7. ```jupyter notebook```
 
 ## Data Partitioning and Sharding
-The FeTS 2021 data release consists of a training set and two CSV files - each providing information for how to partition the training data into non-IID institutional subsets. The release will contain subfolders for single patient records whose names have the format FeTS21_Training_###, and two CSV files: 
+The FeTS 2021 data release consists of a training set and two CSV files - each providing information for how to partition the training data into non-IID institutional subsets. The release will contain subfolders for single patient records whose names have the format `FeTS21_Training_###`, and two CSV files: 
 - partitioning_1.csv
 - partitioning_2.csv 
 
