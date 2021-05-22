@@ -66,6 +66,8 @@ task_runner:
     validate_with_fine_grained_dice: True
     sigmoid_input_multiplier: 20.0
     validation_function: 'fets_phase2_validation'
+    validation_function_kwargs: 
+      challenge_reduced_output: True
 
 tasks:
   defaults: plan/defaults/tasks_torch.yaml
