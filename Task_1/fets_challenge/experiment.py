@@ -293,6 +293,8 @@ def run_challenge_experiment(aggregation_function,
                                                                collaborators_chosen_each_round,
                                                                collaborator_times_per_round)
         
+        logger.info('Collaborators chosen to train for round {}:\n\t{}'.format(round_num, training_collaborators))
+
         # save the collaborators chosen this round
         collaborators_chosen_each_round[round_num] = training_collaborators
 
