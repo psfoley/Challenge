@@ -2,19 +2,27 @@
 Task 1 (**"Federated Training"**) aims at effective weight aggregation methods for the creation of a consensus model given a pre-defined segmentation algorithm for training, while also (optionally) accounting for network outages.
 
 ## Getting started
+
+### System requirements
+
+1. [Git](https://git-scm.com/downloads)
+2. Python with virtual environment management system: we recommend using [Anaconda](https://www.anaconda.com/products/individual).
+3. (**Windows- Only**): Microsoft C++ 14.0 or greater from https://visualstudio.microsoft.com/visual-cpp-build-tools/
+
+### Instructions
+
 1. Register for the FeTS 2021 Challenge [here](https://www.med.upenn.edu/cbica/fets/miccai2021/) and submit a data request.
-2. Install [Git](https://git-scm.com/downloads) on your machine.
-3. ```git clone https://github.com/FETS-AI/Challenge.git```
-4. ```cd Challenge/Task_1```
-5. Create virtual environment (python 3.6-3.8): we recommend using [Anaconda](https://www.anaconda.com/products/individual) as a package manager, using which a new environment can be created and activated using the following commands: 
+2. ```git clone https://github.com/FETS-AI/Challenge.git```
+3. ```cd Challenge/Task_1```
+4. Create virtual environment (python 3.6-3.8): using Anaconda, a new environment can be created and activated using the following commands: 
 ```bash
 ## create venv in specific path
 conda create -p ./venv python=3.7 -y
 conda activate ./venv
 ```
-6. ```pip install --upgrade pip```
-7. ```pip install .```
-8. ```jupyter notebook```
+5. ```pip install --upgrade pip```
+6. ```pip install .```
+7. ```jupyter notebook```
 
 ## Data Partitioning and Sharding
 The FeTS 2021 data release consists of a training set and two CSV files - each providing information for how to partition the training data into non-IID institutional subsets. The release will contain subfolders for single patient records whose names have the format `FeTS21_Training_###`, and two CSV files: 
