@@ -2,11 +2,11 @@
 Task 1 (**"Federated Training"**) aims at effective weight aggregation methods for the creation of a consensus model given a pre-defined segmentation algorithm for training, while also (optionally) accounting for network outages.
 
 ## Getting started
-1. Register for the FeTS 2021 Challenge [here](https://www.med.upenn.edu/cbica/fets/miccai2021/) and submit a data request
+1. Register for the FeTS 2021 Challenge [here](https://www.med.upenn.edu/cbica/fets/miccai2021/) and submit a data request.
 2. Install [Git](https://git-scm.com/downloads) on your machine.
 3. ```git clone https://github.com/FETS-AI/Challenge.git```
 4. ```cd Challenge/Task_1```
-5. Create virtual environment (python 3.6-3.8): we recommend using [Anaconda](https://www.anaconda.com/products/individual) as a package manager, and a new environment can be created and activated using the following commands: 
+5. Create virtual environment (python 3.6-3.8): we recommend using [Anaconda](https://www.anaconda.com/products/individual) as a package manager, using which a new environment can be created and activated using the following commands: 
 ```bash
 ## create venv in specific path
 conda create -p ./venv python=3.7 -y
@@ -18,8 +18,8 @@ conda activate ./venv
 
 ## Data Partitioning and Sharding
 The FeTS 2021 data release consists of a training set and two CSV files - each providing information for how to partition the training data into non-IID institutional subsets. The release will contain subfolders for single patient records whose names have the format `FeTS21_Training_###`, and two CSV files: 
-- partitioning_1.csv
-- partitioning_2.csv 
+- **partitioning_1.csv**
+- **partitioning_2.csv**
 
 Each of the partitioning CSV files has two columns, `Partition_ID` and `Subject_ID`. The Subject_ID column exhausts of the patient records contained in the release. The InstitutionName column provides an integer identifier indicating to which institution the record should be assigned. The path to a partition CSV can be provided as the value of the parameter ```institution_split_csv_filename``` to the jupyter notebook function run_challenge_experiment to specify the institutional split used when running experimental federated training on your custom federation logic. A description of each of these split CSVs is provided in Table 1. We encourage participants to create and explore training performance for other non-IID splits of the training data to help in developing generalizable customizations to the federated logic that will perform well during the validation and testing phase. A third CSV is hidden from participants and defines a test partitioning to be used in the challenge testing phase. This hidden partitioning (also described in Table 1) is another refinement of the institution split, having similar difficulty level to the institution tumor size split in our own experiments using the default customization functions.
 
