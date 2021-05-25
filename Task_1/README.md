@@ -1,4 +1,4 @@
-# FeTS 2021 Challenge Part 1
+# FeTS 2021 Challenge Task 1
 Task 1 (**"Federated Training"**) aims at effective weight aggregation methods for the creation of a consensus model given a pre-defined segmentation algorithm for training, while also (optionally) accounting for network outages.
 
 ## Getting started
