@@ -235,7 +235,8 @@ def run_challenge_experiment(aggregation_function,
                              challenge_metrics_validation_interval=2,
                              save_checkpoints=True,
                              restore_from_checkpoint_folder=None, 
-                             include_validation_with_hausdorff=True):
+                             include_validation_with_hausdorff=True,
+                             new_functionality=False):
 
     fx.init('fets_challenge_workspace')
     
@@ -457,8 +458,11 @@ def run_challenge_experiment(aggregation_function,
         # FIXME: this doesn't break up each task. We need this if we're doing straggler handling
         for t, col in times_list:
             # set the task_runner data loader
-            task_runner.data_loader = collaborator_data_loaders[col]
-
+            if new_functionality:
+                task_runner.data = collaborator_data_loaders[col]
+            else:
+                task_runner.data_loader = collaborator_data_loaders[col]
+                
             # run the collaborator
             collaborators[col].run_simulation()
             
