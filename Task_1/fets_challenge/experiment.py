@@ -360,7 +360,7 @@ def run_challenge_experiment(aggregation_function,
              collaborators_chosen_each_round, collaborator_times_per_round, 
              experiment_results, summary, agg_tensor_db, col_tensor_dbs] = state
 
-            if loaded_collaborator_names != collaborator_names:
+            if list(sorted(loaded_collaborator_names)) != list(sorted(collaborator_names)):
                 logger.error(f'Collaborator names found in checkpoint ({loaded_collaborator_names}) '
                              f'do not match provided collaborators ({collaborator_names})')
                 exit(1)
