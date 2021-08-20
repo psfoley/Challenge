@@ -42,7 +42,7 @@ def save_checkpoint(checkpoint_folder, aggregator,
                      best_dice, best_dice_over_time_auc, collaborators_chosen_each_round, 
                      collaborator_times_per_round, experiment_results, summary], f)
 
-def load_checkpoint(checkpoint_folder):
+def load_checkpoint(checkpoint_folder, ignore_collaborator_tensordb=False):
     """
     Reload checkpoint from 'checkpoint/experiment_*'
     """
@@ -53,7 +53,8 @@ def load_checkpoint(checkpoint_folder):
     # load each collaborator tensor_db
     collaborator_names = state[0]
     collaborator_tensor_dbs = {}
-    for col in collaborator_names:
-        collaborator_tensor_dbs[col] = pd.read_pickle(f'checkpoint/{checkpoint_folder}/{col}_tensor_db.pkl')
+    if not ignore_collaborator_tensordb:
+        for col in collaborator_names:
+            collaborator_tensor_dbs[col] = pd.read_pickle(f'checkpoint/{checkpoint_folder}/{col}_tensor_db.pkl')
     
     return state + [aggregator_tensor_db] + [collaborator_tensor_dbs]

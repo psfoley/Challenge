@@ -236,7 +236,8 @@ def run_challenge_experiment(aggregation_function,
                              save_checkpoints=True,
                              restore_from_checkpoint_folder=None, 
                              include_validation_with_hausdorff=True,
-                             new_functionality=False):
+                             new_functionality=False,
+                             ignore_collaborator_tensordb=False):
 
     fx.init('fets_challenge_workspace')
     
@@ -351,7 +352,7 @@ def run_challenge_experiment(aggregation_function,
             exit(1)
         else:
             logger.info(f'Attempting to load last completed round from {restore_from_checkpoint_folder}')
-            state = load_checkpoint(restore_from_checkpoint_folder)
+            state = load_checkpoint(restore_from_checkpoint_folder,ignore_collaborator_tensordb=ignore_collaborator_tensordb)
             checkpoint_folder = restore_from_checkpoint_folder
 
             [loaded_collaborator_names, starting_round_num, collaborator_time_stats, 
@@ -364,8 +365,9 @@ def run_challenge_experiment(aggregation_function,
                              f'do not match provided collaborators ({collaborator_names})')
                 exit(1)
 
-            for col in loaded_collaborator_names:
-                collaborators[col].tensor_db.tensor_db = col_tensor_dbs[col]
+            if not ignore_collaborator_tensordb:
+                for col in loaded_collaborator_names:
+                    collaborators[col].tensor_db.tensor_db = col_tensor_dbs[col]
 
             logger.info(f'Previous summary for round {starting_round_num}')
             logger.info(summary)
