@@ -551,7 +551,8 @@ def run_challenge_experiment(aggregation_function,
                             collaborators_chosen_each_round, 
                             collaborator_times_per_round,
                             experiment_results,
-                            summary)
+                            summary,
+                            ignore_collaborator_tensordb)
 
         # if the total_simulated_time has exceeded the maximum time, we break
         # in practice, this means that the previous round's model is the last model scored,

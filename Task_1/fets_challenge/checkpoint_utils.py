@@ -29,14 +29,18 @@ def save_checkpoint(checkpoint_folder, aggregator,
                     collaborators_chosen_each_round, 
                     collaborator_times_per_round,
                     experiment_results,
-                    summary):
+                    summary,
+                    ignore_collaborator_tensordb):
     """
     Save latest checkpoint
     """
     # Save aggregator tensor_db
     aggregator.tensor_db.tensor_db.to_pickle(f'checkpoint/{checkpoint_folder}/aggregator_tensor_db.pkl')
-    for col in collaborator_names:
-        collaborators[col].tensor_db.tensor_db.to_pickle(f'checkpoint/{checkpoint_folder}/{col}_tensor_db.pkl')
+    
+    # if not ignoring collaborator tensor dbs, save them
+    if not ignore_collaborator_tensordb:
+        for col in collaborator_names:
+            collaborators[col].tensor_db.tensor_db.to_pickle(f'checkpoint/{checkpoint_folder}/{col}_tensor_db.pkl')
     with open(f'checkpoint/{checkpoint_folder}/state.pkl', 'wb') as f:
         pickle.dump([collaborator_names, round_num, collaborator_time_stats, total_simulated_time, 
                      best_dice, best_dice_over_time_auc, collaborators_chosen_each_round, 
