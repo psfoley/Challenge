@@ -151,7 +151,7 @@ def constant_hyper_parameters(collaborators,
     # these are the hyperparameters used in the May 2021 recent training of the actual FeTS Initiative
     # they were tuned using a set of data that UPenn had access to, not on the federation itself
     # they worked pretty well for us, but we think you can do better :)
-    epochs_per_round = 1
+    epochs_per_round = 3
     learning_rate = 5e-5
     return (learning_rate, epochs_per_round)
 
@@ -186,6 +186,19 @@ def train_less_each_round(collaborators,
     epochs_per_round = int(epochs_per_round)
     
     return (learning_rate, epochs_per_round)
+
+# # Custom validation functions
+# Custom functionality may be added to the collaborator's validation functions in order to support more interesting aggregation algorithms. These custom validation functions are passed a copy of the trained model, and the validation dataloader. We provide this interface as follows:
+def validation_function_interface(trained_model, validation_dataloader):
+    # make model modifications here 
+    output_by_subject = []
+    for subject in validation_loader:
+         with torch.no_grad():
+             subject_output = trained_model(subject)
+             subject_output = custom_output.cpu()
+             output_by_subject.append(subject_output)
+
+    return {'custom_metric' : output_by_subject}
 
 
 # # Custom Aggregation Functions
@@ -539,6 +552,9 @@ device = 'cpu'
 # however, the experiment will exit once the simulated time exceeds one week. 
 rounds_to_train = 5
 
+# Validation functions is a list of custom validation functions that should be called after training. These will be called sequentially.
+validation_functions = []
+
 # (bool) Determines whether checkpoints should be saved during the experiment. 
 # The checkpoints can grow quite large (5-10GB) so only the latest will be saved when this parameter is enabled
 save_checkpoints = True
@@ -563,6 +579,7 @@ scores_dataframe, checkpoint_folder = run_challenge_experiment(
     rounds_to_train=rounds_to_train,
     device=device,
     save_checkpoints=save_checkpoints,
+    validation_functions=validation_functions,
     restore_from_checkpoint_folder = restore_from_checkpoint_folder)
 
 

@@ -22,6 +22,24 @@ from . import TRAINING_HPARAMS
 class FeTSChallengeModel(FeTSChallengeTaskRunner):
     """FeTSChallenge Model class for Federated Learning."""
 
+    def __init__(
+            self,
+            train_csv: str = None,
+            val_csv: str = None,
+            fets_config_dict: dict = None,
+            device: str = None,
+            validation_functions: list = [],
+            **kwargs
+    ):
+        super().__init__(train_csv, 
+                         val_csv,
+                         fets_config_dict,
+                         device,
+                         **kwargs)
+        self.validation_functions = validation_functions
+                    
+    
+
     def validate(self, col_name, round_num, input_tensor_dict,
                  use_tqdm=False, **kwargs):
         """Validate.
@@ -59,6 +77,16 @@ class FeTSChallengeModel(FeTSChallengeTaskRunner):
         tags = ('metric', suffix)
 
         output_tensor_dict = {}
+
+        # Add custom functionality
+
+        if len(self.validation_functions) > 0:
+            model_clone = copy.deepcopy(self.model)
+            for name, func in self.validation_functions:
+                custom_val_function_dict = func(model_clone,self.data_loader.val_dataloader)
+                for k, v in custom_val_function_dict.items():
+                    output_tensor_dict[TensorKey(f'valid_{k}', origin, round_num, True, tags)] = np.array(v)
+
         output_tensor_dict[TensorKey('valid_loss', origin, round_num, True, tags)] = np.array(epoch_valid_loss)
         for k, v in epoch_valid_metric.items():
             if np.array(v).size == 1:
@@ -103,6 +131,8 @@ class FeTSChallengeModel(FeTSChallengeTaskRunner):
         tags = ('metric', suffix)
 
         output_tensor_dict = {}
+
+
         output_tensor_dict[TensorKey('valid_loss', origin, round_num, True, tags)] = np.array(epoch_valid_loss)
         for k, v in epoch_valid_metric.items():
             if np.array(v).size == 1:
@@ -138,7 +168,6 @@ class FeTSChallengeModel(FeTSChallengeTaskRunner):
             local_output_dict       : Tensors to maintain in the local TensorDB
         """
 
-        print(f'input tensor_dict = {input_tensor_dict.keys()}')
         # handle the hparams
         epochs_per_round = int(input_tensor_dict.pop('epochs_per_round'))
         learning_rate = float(input_tensor_dict.pop('learning_rate'))

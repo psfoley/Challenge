@@ -231,6 +231,7 @@ def run_challenge_experiment(aggregation_function,
                              save_checkpoints=True,
                              restore_from_checkpoint_folder=None, 
                              include_validation_with_hausdorff=True,
+                             validation_functions=[],
                              use_pretrained_model=True):
 
     fx.init('fets_challenge_workspace')
@@ -259,6 +260,7 @@ def run_challenge_experiment(aggregation_function,
         'aggregator.settings.db_store_rounds': db_store_rounds,
         'tasks.train.aggregation_type': aggregation_wrapper,
         'task_runner.settings.device': device,
+        'task_runner.settings.validation_functions': validation_functions,
     }
 
 
