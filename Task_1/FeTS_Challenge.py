@@ -187,16 +187,20 @@ def train_less_each_round(collaborators,
     
     return (learning_rate, epochs_per_round)
 
+
 # # Custom validation functions
 # Custom functionality may be added to the collaborator's validation functions in order to support more interesting aggregation algorithms. These custom validation functions are passed a copy of the trained model, and the validation dataloader. We provide this interface as follows:
-def validation_function_interface(trained_model, validation_dataloader):
+
+from 
+def validation_function_example(trained_model, valid_dataloader):
+    import torch
+    import tqdm
     # make model modifications here 
     output_by_subject = []
-    for subject in validation_loader:
-         with torch.no_grad():
-             subject_output = trained_model(subject)
-             subject_output = custom_output.cpu()
-             output_by_subject.append(subject_output)
+    for batch_idx, (subject) in enumerate(
+        tqdm(valid_dataloader, desc="Custom validation function: Looping over data")
+    ):
+        forward_pass(model,valid_dataloader,params)
 
     return {'custom_metric' : output_by_subject}
 
@@ -553,7 +557,7 @@ device = 'cpu'
 rounds_to_train = 5
 
 # Validation functions is a list of custom validation functions that should be called after training. These will be called sequentially.
-validation_functions = []
+validation_functions = {'custom_validation_function' : validation_function_example}
 
 # (bool) Determines whether checkpoints should be saved during the experiment. 
 # The checkpoints can grow quite large (5-10GB) so only the latest will be saved when this parameter is enabled

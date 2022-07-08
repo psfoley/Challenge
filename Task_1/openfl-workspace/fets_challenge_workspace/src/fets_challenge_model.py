@@ -3,7 +3,7 @@
 
 """GaNDLFTaskRunner module."""
 
-from copy import deepcopy
+import copy
 
 import numpy as np
 import torch as pt
@@ -82,7 +82,7 @@ class FeTSChallengeModel(FeTSChallengeTaskRunner):
 
         if len(self.validation_functions) > 0:
             model_clone = copy.deepcopy(self.model)
-            for name, func in self.validation_functions:
+            for name, func in self.validation_functions.items():
                 custom_val_function_dict = func(model_clone,self.data_loader.val_dataloader)
                 for k, v in custom_val_function_dict.items():
                     output_tensor_dict[TensorKey(f'valid_{k}', origin, round_num, True, tags)] = np.array(v)
